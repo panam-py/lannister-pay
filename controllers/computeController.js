@@ -58,7 +58,7 @@ exports.compute = catchAsync(async (req, res, next) => {
   });
 
   if (usefulConfigs.length < 1) {
-    res.status(400).json({
+    return res.status(400).json({
       status: "failed",
       message: "No configuration found for this transaction!",
     });
