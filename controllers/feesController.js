@@ -1,5 +1,8 @@
 const Config = require("../models/configModel");
 const catchAsync = require("../utils/catchAsync");
+const redis = require("redis");
+const redisPort = 6379;
+const client = redis.createClient(redisPort);
 
 exports.createConfig = catchAsync(async (req, res, next) => {
   const { FeeConfigurationSpec } = req.body;
@@ -20,13 +23,13 @@ exports.createConfig = catchAsync(async (req, res, next) => {
         entityProperty,
         feeType,
         feeValue;
-      
+
       feeID = elArrSpecs[0];
       feeCurrency = elArrSpecs[1];
       feeLocale = elArrSpecs[2];
       feeEntity = elArrSpecs[3].match(/[^(]*/)[0];
       entityProperty = elArrSpecs[3].match(/\(([^)]+)\)/)[1];
-      
+
       if (elArr.length > 2) {
         feeOptions = `${elArr[1]}:${elArr[2]}`;
         elObj = {
@@ -55,7 +58,7 @@ exports.createConfig = catchAsync(async (req, res, next) => {
       }
     })
   );
-
+  
   res.status(200).json({
     status: "ok",
   });

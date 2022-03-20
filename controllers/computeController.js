@@ -8,7 +8,7 @@ exports.compute = catchAsync(async (req, res, next) => {
   const paymentEntity = req.body.PaymentEntity;
   const customer = req.body.Customer;
 
-  const configurations = await Config.find();
+  const configurations = await Config.find().lean();
 
   let computeLocale;
   const usefulConfigs = [];
@@ -85,14 +85,14 @@ exports.compute = catchAsync(async (req, res, next) => {
   AppliedFeeID = usefulConfigs[0].feeID;
   if (usefulConfigs[0].feeType === "PERC") {
     percentage = parseFloat(usefulConfigs[0].feeValue);
-    AppliedFeeValue = (percentage / 100) * amount;
+    AppliedFeeValue = Math.round((percentage / 100) * amount);
   } else if (usefulConfigs[0].feeType === "FLAT") {
     flat = parseInt(usefulConfigs[0].feeValue);
-    AppliedFeeValue = flat;
+    AppliedFeeValue = Math.round(flat);
   } else if (usefulConfigs[0].feeType === "FLAT_PERC") {
     flat = parseInt(usefulConfigs[0].feeValue.split(":")[0]);
     percentage = parseFloat(usefulConfigs[0].feeValue.split(":")[1]);
-    AppliedFeeValue = flat + (percentage / 100) * amount;
+    AppliedFeeValue = Math.round(flat + (percentage / 100) * amount);
   }
 
   if (customer.BearsFee === true) {
