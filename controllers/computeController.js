@@ -57,17 +57,31 @@ exports.compute = catchAsync(async (req, res, next) => {
     }
   });
 
+  let AppliedFeeID, AppliedFeeValue, ChargeAmount, SettlementAmount;
+  let percentage, flat;
+
   if (usefulConfigs.length < 1) {
     return res.status(400).json({
       status: "failed",
       message: "No configuration found for this transaction!",
     });
+  } else if (usefulConfigs.length === 1) {
+    AppliedFeeID = usefulConfigs[0].feeID;
+    if (usefulConfigs[0].feeType === "PERC") {
+      percentage = parseFloat(usefulConfigs[0].feeValue);
+      AppliedFeeValue = (percentage / 100) * amount;
+    } else if (usefulConfigs[0].feeType === "FLAT") {
+      flat = parseInt(usefulConfigs[0].feeValue);
+      AppliedFeeValue = flat;
+    } else if (usefulConfigs[0].feeType === "FLAT_PERC") {
+      flat = parseInt(usefulConfigs[0].feeValue.split(":")[0]);
+      percentage = parseFloat(usefulConfigs[0].feeValue.split(":")[1]);
+      AppliedFeeValue = flat + (percentage / 100) * amount;
+    }
   }
 
   usefulConfigs.sort((a, b) => b.score - a.score);
 
-  let AppliedFeeID, AppliedFeeValue, ChargeAmount, SettlementAmount;
-  let percentage, flat;
   AppliedFeeID = usefulConfigs[0].feeID;
   if (usefulConfigs[0].feeType === "PERC") {
     percentage = parseFloat(usefulConfigs[0].feeValue);
